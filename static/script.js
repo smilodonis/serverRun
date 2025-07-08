@@ -100,12 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
             gpuElement.className = 'stat-container';
             gpuElement.innerHTML = `
                 <h4>${gpu.name}</h4>
-                <p>Temperature: ${gpu.temperature}°C</p>
+                <p>Temperature: ${gpu.temperature}°C (Max: 90°C)</p>
                 <div class="progress-bar-container">
                     <div id="gpu-temp-bar-${index}" class="progress-bar temp-bar" style="width: ${tempPercent.toFixed(1)}%;"></div>
                 </div>
 
-                <p>Fan Speed: ${gpu.fan_speed}%</p>
+                <p>Fan Speed: ${gpu.fan_speed}% (Max: 100%)</p>
                 <div class="progress-bar-container">
                     <div id="gpu-fan-bar-${index}" class="progress-bar" style="width: ${gpu.fan_speed}%;"></div>
                 </div>
