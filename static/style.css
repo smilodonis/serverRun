@@ -46,6 +46,22 @@ h1, h2 {
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
+.service-monitoring-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+#ollama-monitoring,
+#invokeai-monitoring {
+    background-color: var(--secondary-bg-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px var(--box-shadow-color);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
 #gpu-info, #system-info {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
