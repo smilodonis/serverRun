@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme('light');
     }
 
+    let invokeai_batch_start_completed_count = -1;
+    let invokeai_batch_total_items = 0;
+
     console.log('Control panel script loaded.');
 
     const fetchData = async (url) => {
@@ -178,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.running) {
             statusEl.textContent = 'Running';
             statusEl.style.color = '#2ECC71';
-            queueContainer.style.display = 'block';
             
             if (data.is_generating) {
                 generatingEl.textContent = 'Yes';
@@ -190,9 +192,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.queue) {
                 const q = data.queue;
-                const current = q.completed + q.failed + q.canceled + q.in_progress;
-                const total = q.total;
-                queueProgressEl.textContent = `${current}/${total}`;
+                const active_items = q.pending + q.in_progress;
+
+                // A new batch is detected if there are active items and we were not previously tracking a batch.
+                if (active_items > 0 && invokeai_batch_start_completed_count === -1) {
+                    invokeai_batch_start_completed_count = q.completed + q.failed + q.canceled;
+                    invokeai_batch_total_items = active_items;
+                }
+
+                // If we are tracking a batch, update the progress.
+                if (invokeai_batch_start_completed_count !== -1) {
+                    queueContainer.style.display = 'block';
+                    const processed_in_batch = (q.completed + q.failed + q.canceled) - invokeai_batch_start_completed_count;
+                    queueProgressEl.textContent = `${processed_in_batch}/${invokeai_batch_total_items}`;
+                } else {
+                    queueContainer.style.display = 'none';
+                }
+
+                // If the batch is finished, reset the tracking variables.
+                if (active_items === 0 && invokeai_batch_start_completed_count !== -1) {
+                    invokeai_batch_start_completed_count = -1;
+                    invokeai_batch_total_items = 0;
+                    queueContainer.style.display = 'none';
+                }
+            } else {
+                 queueContainer.style.display = 'none';
             }
 
         } else {
@@ -200,6 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
             statusEl.style.color = '#ff4d4d';
             generatingEl.textContent = 'N/A';
             queueContainer.style.display = 'none';
+             // Also reset batch tracking if the server goes down
+            invokeai_batch_start_completed_count = -1;
+            invokeai_batch_total_items = 0;
         }
     };
 
