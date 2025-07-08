@@ -160,6 +160,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const updateInvokeAIInfo = async () => {
+        const data = await fetchData('/api/invokeai-info');
+        const statusEl = document.getElementById('invokeai-status');
+        const generatingEl = document.getElementById('invokeai-generating-status');
+
+        if (!data) {
+            statusEl.textContent = 'Error';
+            statusEl.style.color = '#ff4d4d';
+            generatingEl.textContent = 'Unknown';
+            return;
+        }
+
+        if (data.running) {
+            statusEl.textContent = 'Running';
+            statusEl.style.color = '#2ECC71';
+            
+            if (data.is_generating) {
+                generatingEl.textContent = 'Yes';
+                generatingEl.style.color = '#2ECC71';
+            } else {
+                generatingEl.textContent = 'No';
+                generatingEl.style.color = 'var(--primary-text-color)';
+            }
+        } else {
+            statusEl.textContent = 'Not Running';
+            statusEl.style.color = '#ff4d4d';
+            generatingEl.textContent = 'N/A';
+        }
+    };
+
     const updateRunningApps = async () => {
         const data = await fetchData('/api/running-apps');
         const appListUl = document.getElementById('app-list');
@@ -200,9 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSystemInfo();
     updateGpuInfo();
     updateOllamaInfo();
+    updateInvokeAIInfo();
     updateRunningApps();
     setInterval(updateSystemInfo, 3000);
     setInterval(updateGpuInfo, 5000);
     setInterval(updateOllamaInfo, 10000);
+    setInterval(updateInvokeAIInfo, 5000);
     setInterval(updateRunningApps, 10000);
 }); 

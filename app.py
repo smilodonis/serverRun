@@ -47,6 +47,34 @@ def ollama_info():
     
     return jsonify({'running': False, 'models': []})
 
+@app.route('/api/invokeai-info')
+def invokeai_info():
+    invokeai_url = 'http://127.0.0.1:9090'
+    try:
+        # Check if the server is running by getting the version
+        version_response = requests.get(f'{invokeai_url}/api/v1/app/version', timeout=1)
+        if version_response.status_code == 200:
+            # If running, check the queue status to see if it's busy
+            queue_status_response = requests.get(f'{invokeai_url}/api/v1/queue/default/status', timeout=1)
+            if queue_status_response.status_code == 200:
+                queue_data = queue_status_response.json()
+                queue_status = queue_data.get('queue', {})
+                is_generating = queue_status.get('in_progress', 0) > 0
+                return jsonify({
+                    'running': True,
+                    'is_generating': is_generating
+                })
+            else:
+                 # It's running but can't get queue status, assume not generating
+                 return jsonify({'running': True, 'is_generating': False})
+
+    except requests.ConnectionError:
+        return jsonify({'running': False, 'is_generating': False})
+    except Exception as e:
+        return jsonify({'running': False, 'is_generating': False, 'error': str(e)}), 500
+    
+    return jsonify({'running': False, 'is_generating': False})
+
 @app.route('/api/system-info')
 def system_info():
     cpu_usage = psutil.cpu_percent(interval=1)
