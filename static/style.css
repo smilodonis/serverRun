@@ -1,21 +1,49 @@
+:root {
+    --primary-bg-color: #f0f2f5;
+    --secondary-bg-color: #ffffff;
+    --primary-text-color: #333;
+    --border-color: #ddd;
+    --progress-bar-bg: #e0e0e0;
+    --progress-bar-fill: #4caf50;
+    --button-bg: #007bff;
+    --button-text-color: white;
+    --button-hover-bg: #0056b3;
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --primary-bg-color: #1a1a1a;
+    --secondary-bg-color: #2c2c2c;
+    --primary-text-color: #e0e0e0;
+    --border-color: #444;
+    --progress-bar-bg: #555;
+    --progress-bar-fill: #007bff;
+    --button-bg: #0056b3;
+    --button-text-color: #e0e0e0;
+    --button-hover-bg: #003d80;
+    --box-shadow-color: rgba(0, 0, 0, 0.4);
+}
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: var(--primary-bg-color);
+    color: var(--primary-text-color);
     margin: 0;
     padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 h1, h2 {
-    color: #333;
+    color: var(--primary-text-color);
 }
 
 #monitoring, #applications, #actions {
-    background-color: #fff;
+    background-color: var(--secondary-bg-color);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--box-shadow-color);
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 #gpu-info, #system-info {
@@ -30,37 +58,40 @@ h1, h2 {
 }
 
 #app-list li {
-    background-color: #f9f9f9;
+    background-color: var(--primary-bg-color);
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     margin-bottom: 5px;
     border-radius: 4px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 button {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--button-bg);
+    color: var(--button-text-color);
     border: none;
     padding: 10px 15px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: var(--button-hover-bg);
 }
 
 .stat-container {
     padding: 10px;
-    background: #fdfdfd;
-    border: 1px solid #eee;
+    background: var(--primary-bg-color);
+    border: 1px solid var(--border-color);
     border-radius: 5px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .progress-bar-container {
     width: 100%;
-    background-color: #e0e0e0;
+    background-color: var(--progress-bar-bg);
     border-radius: 4px;
     height: 20px;
     margin-top: 5px;
@@ -68,11 +99,64 @@ button:hover {
 
 .progress-bar {
     height: 100%;
-    background-color: #4caf50;
+    background-color: var(--progress-bar-fill);
     border-radius: 4px;
     width: 0%; /* Initial width */
     transition: width 0.4s ease-in-out;
     color: white;
     text-align: center;
     line-height: 20px;
+}
+
+/* Theme Switch Styles */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
 } 

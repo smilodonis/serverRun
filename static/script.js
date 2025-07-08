@@ -1,4 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('checkbox');
+    
+    const applyTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        if(themeToggle) {
+            themeToggle.checked = theme === 'dark';
+        }
+    };
+
+    if(themeToggle) {
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme) {
+        applyTheme(savedTheme);
+    } else if (prefersDark) {
+        applyTheme('dark');
+    } else {
+        applyTheme('light');
+    }
+
     console.log('Control panel script loaded.');
 
     const fetchData = async (url) => {
