@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This project is a web-based control panel for a Windows server. It provides a simple one-page interface to monitor system resources (CPU, GPU, temperature), view running applications, and execute predefined actions like running `.bat` files or starting/stopping applications. It also features Ollama instance monitoring and a dark mode toggle.
+This project is a web-based control panel for a Windows server. It provides a simple one-page interface to monitor system resources (CPU, GPU, temperature), view running applications, and execute predefined actions like running `.bat` files or starting/stopping applications. It also features Ollama & InvokeAI instance monitoring and a dark mode toggle.
 
 ## 2. Features
 
@@ -13,6 +13,10 @@ This project is a web-based control panel for a Windows server. It provides a si
 -   **Ollama Monitoring**:
     -   Shows if the Ollama service is running.
     -   Lists currently loaded models.
+-   **InvokeAI Monitoring**:
+    -   Shows if the InvokeAI service is running.
+    -   Shows if an image is currently being generated.
+    -   Tracks the progress of the current image generation batch (e.g., 1/10).
 -   **Application Management**:
     -   List currently running applications.
     -   Launch specified applications.
@@ -32,7 +36,7 @@ This project is a web-based control panel for a Windows server. It provides a si
     -   `psutil` for system and CPU monitoring.
     -   `pynvml` for NVIDIA GPU monitoring.
     -   `subprocess` for running scripts and applications.
-    -   `requests` for querying the Ollama API.
+    -   `requests` for querying the Ollama & InvokeAI APIs.
     -   `socket` to get the hostname.
 
 ## 4. Project Structure
@@ -61,6 +65,7 @@ The Flask server will expose the following endpoints:
 -   `GET /api/system-info`: Returns a JSON object with CPU, RAM, and temperature data.
 -   `GET /api/gpu-info`: Returns a JSON object with GPU data.
 -   `GET /api/ollama-info`: Returns the status and loaded models of the Ollama instance.
+-   `GET /api/invokeai-info`: Returns status, generation state, and queue details of the InvokeAI instance.
 -   `GET /api/running-apps`: Returns a list of running applications.
 -   `POST /api/run-script`: Executes a predefined `.bat` script.
     -   Payload: `{ "script_name": "name_of_script.bat" }`
@@ -76,7 +81,7 @@ The Flask server will expose the following endpoints:
 -   A Flask application will be created.
 -   Routes will be defined for each API endpoint.
 -   Functions will be implemented to gather system data using `psutil`, `pynvml`, and `socket`.
--   A function to check the Ollama API is implemented using `requests`.
+-   Functions to check the Ollama and InvokeAI APIs are implemented using `requests`.
 -   Functions for script/application management use the `subprocess` module with proper security considerations (e.g., allow-listing scripts and applications).
 
 ### Frontend (`index.html`, `script.js`)
@@ -85,6 +90,7 @@ The Flask server will expose the following endpoints:
 -   `script.js` handles:
     -   Periodically fetching data from all API endpoints.
     -   Dynamically updating the HTML to display the latest data in text and progress bars.
+    -   Intelligently tracking the current InvokeAI image batch progress.
     -   Sending `POST` requests to action endpoints when buttons are clicked.
     -   Managing the light/dark theme and saving the preference to local storage.
 
