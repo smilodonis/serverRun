@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Control Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Server Control Panel</h1>
+
+    <div id="monitoring">
+        <h2>System Monitoring</h2>
+        <div id="system-info">
+            <p>CPU Usage: <span id="cpu-usage">...</span>%</p>
+            <p>RAM Usage: <span id="ram-usage">...</span>%</p>
+        </div>
+        <h2>GPU Monitoring</h2>
+        <div id="gpu-info">
+            <!-- GPU data will be populated here -->
+        </div>
+    </div>
+
+    <div id="applications">
+        <h2>Running Applications</h2>
+        <ul id="app-list">
+            <!-- App list will be populated here -->
+        </ul>
+    </div>
+
+    <div id="actions">
+        <h2>Actions</h2>
+        <button id="run-script-btn">Run Example Script</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
