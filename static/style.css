@@ -108,6 +108,10 @@ button:hover {
     line-height: 20px;
 }
 
+.progress-bar.temp-bar {
+    background-color: #ff9800; /* Orange for temperature */
+}
+
 /* Theme Switch Styles */
 .theme-switch-wrapper {
     display: flex;

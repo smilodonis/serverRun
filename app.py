@@ -3,6 +3,7 @@ import psutil
 import pynvml
 import os
 import subprocess
+import socket
 
 app = Flask(__name__)
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
@@ -22,7 +23,8 @@ except pynvml.NVMLError:
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    hostname = socket.gethostname()
+    return render_template('index.html', hostname=hostname)
 
 @app.route('/api/system-info')
 def system_info():

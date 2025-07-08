@@ -93,16 +93,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach((gpu, index) => {
             const memoryUsagePercent = (gpu.memory_used / gpu.memory_total) * 100;
+            // Cap temperature at 90 for bar display, but show real value in text
+            const tempPercent = Math.min((gpu.temperature / 90) * 100, 100);
+
             const gpuElement = document.createElement('div');
             gpuElement.className = 'stat-container';
             gpuElement.innerHTML = `
                 <h4>${gpu.name}</h4>
                 <p>Temperature: ${gpu.temperature}°C</p>
+                <div class="progress-bar-container">
+                    <div id="gpu-temp-bar-${index}" class="progress-bar temp-bar" style="width: ${tempPercent.toFixed(1)}%;"></div>
+                </div>
+
                 <p>Fan Speed: ${gpu.fan_speed}%</p>
+                <div class="progress-bar-container">
+                    <div id="gpu-fan-bar-${index}" class="progress-bar" style="width: ${gpu.fan_speed}%;"></div>
+                </div>
+
                 <p>GPU Utilization: ${gpu.utilization_gpu}%</p>
                 <div class="progress-bar-container">
                     <div id="gpu-utilization-bar-${index}" class="progress-bar" style="width: ${gpu.utilization_gpu}%;"></div>
                 </div>
+                
                 <p>Memory: ${formatBytes(gpu.memory_used)} / ${formatBytes(gpu.memory_total)}</p>
                 <div class="progress-bar-container">
                     <div id="gpu-memory-bar-${index}" class="progress-bar" style="width: ${memoryUsagePercent.toFixed(1)}%;"></div>
