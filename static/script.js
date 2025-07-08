@@ -44,8 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await fetchData('/api/system-info');
         if (!data) return;
 
-        document.getElementById('cpu-usage').textContent = data.cpu_usage.toFixed(1);
-        document.getElementById('ram-usage').textContent = data.ram_usage.toFixed(1);
+        const cpuUsage = data.cpu_usage.toFixed(1);
+        document.getElementById('cpu-usage-text').textContent = cpuUsage;
+        document.getElementById('cpu-usage-bar').style.width = `${cpuUsage}%`;
+        
+        const ramUsage = data.ram_usage.toFixed(1);
+        document.getElementById('ram-usage-text').textContent = ramUsage;
+        document.getElementById('ram-usage-bar').style.width = `${ramUsage}%`;
     };
 
     const updateGpuInfo = async () => {
@@ -58,14 +63,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        data.forEach(gpu => {
+        data.forEach((gpu, index) => {
+            const memoryUsagePercent = (gpu.memory_used / gpu.memory_total) * 100;
             const gpuElement = document.createElement('div');
+            gpuElement.className = 'stat-container';
             gpuElement.innerHTML = `
                 <h4>${gpu.name}</h4>
                 <p>Temperature: ${gpu.temperature}°C</p>
                 <p>Fan Speed: ${gpu.fan_speed}%</p>
                 <p>GPU Utilization: ${gpu.utilization_gpu}%</p>
+                <div class="progress-bar-container">
+                    <div id="gpu-utilization-bar-${index}" class="progress-bar" style="width: ${gpu.utilization_gpu}%;"></div>
+                </div>
                 <p>Memory: ${formatBytes(gpu.memory_used)} / ${formatBytes(gpu.memory_total)}</p>
+                <div class="progress-bar-container">
+                    <div id="gpu-memory-bar-${index}" class="progress-bar" style="width: ${memoryUsagePercent.toFixed(1)}%;"></div>
+                </div>
             `;
             gpuInfoDiv.appendChild(gpuElement);
         });

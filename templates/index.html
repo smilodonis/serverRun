@@ -12,8 +12,18 @@
     <div id="monitoring">
         <h2>System Monitoring</h2>
         <div id="system-info">
-            <p>CPU Usage: <span id="cpu-usage">...</span>%</p>
-            <p>RAM Usage: <span id="ram-usage">...</span>%</p>
+            <div class="stat-container">
+                <p>CPU Usage: <span id="cpu-usage-text">...</span>%</p>
+                <div class="progress-bar-container">
+                    <div id="cpu-usage-bar" class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="stat-container">
+                <p>RAM Usage: <span id="ram-usage-text">...</span>%</p>
+                <div class="progress-bar-container">
+                    <div id="ram-usage-bar" class="progress-bar"></div>
+                </div>
+            </div>
         </div>
         <h2>GPU Monitoring</h2>
         <div id="gpu-info">

@@ -21,7 +21,7 @@ h1, h2 {
 #gpu-info, #system-info {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
+    gap: 20px;
 }
 
 #app-list {
@@ -49,4 +49,30 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+.stat-container {
+    padding: 10px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    height: 20px;
+    margin-top: 5px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #4caf50;
+    border-radius: 4px;
+    width: 0%; /* Initial width */
+    transition: width 0.4s ease-in-out;
+    color: white;
+    text-align: center;
+    line-height: 20px;
 } 
