@@ -62,7 +62,15 @@ def invokeai_info():
                 is_generating = queue_status.get('in_progress', 0) > 0
                 return jsonify({
                     'running': True,
-                    'is_generating': is_generating
+                    'is_generating': is_generating,
+                    'queue': {
+                        'total': queue_status.get('total', 0),
+                        'completed': queue_status.get('completed', 0),
+                        'in_progress': queue_status.get('in_progress', 0),
+                        'pending': queue_status.get('pending', 0),
+                        'failed': queue_status.get('failed', 0),
+                        'canceled': queue_status.get('canceled', 0),
+                    }
                 })
             else:
                  # It's running but can't get queue status, assume not generating

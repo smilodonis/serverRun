@@ -164,17 +164,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await fetchData('/api/invokeai-info');
         const statusEl = document.getElementById('invokeai-status');
         const generatingEl = document.getElementById('invokeai-generating-status');
+        const queueContainer = document.getElementById('invokeai-queue-container');
+        const queueProgressEl = document.getElementById('invokeai-queue-progress');
 
         if (!data) {
             statusEl.textContent = 'Error';
             statusEl.style.color = '#ff4d4d';
             generatingEl.textContent = 'Unknown';
+            queueContainer.style.display = 'none';
             return;
         }
 
         if (data.running) {
             statusEl.textContent = 'Running';
             statusEl.style.color = '#2ECC71';
+            queueContainer.style.display = 'block';
             
             if (data.is_generating) {
                 generatingEl.textContent = 'Yes';
@@ -183,10 +187,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 generatingEl.textContent = 'No';
                 generatingEl.style.color = 'var(--primary-text-color)';
             }
+
+            if (data.queue) {
+                const q = data.queue;
+                const current = q.completed + q.failed + q.canceled + q.in_progress;
+                const total = q.total;
+                queueProgressEl.textContent = `${current}/${total}`;
+            }
+
         } else {
             statusEl.textContent = 'Not Running';
             statusEl.style.color = '#ff4d4d';
             generatingEl.textContent = 'N/A';
+            queueContainer.style.display = 'none';
         }
     };
 
