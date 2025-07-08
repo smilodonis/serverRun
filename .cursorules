@@ -1,0 +1,127 @@
+context:
+
+
+    # AI ASSISTANT DEVELOPMENT RULES
+
+## GENERAL GUIDELINES
+- YOU MUST STRICTLY NEVER TRY TO RUN SERVER. Leave the testing to user to do it manually.
+- YOU MUST STRICTLY NEVER ADD ANY FALLBACK MECHANISMS IN CODE, they obfuscate problems and prevent errors to be logged.
+- Be methodical and careful when changing code - avoid jumping to conclusions.
+- Be thorough in your analysis to gain confidence in your solution.
+- Always think through implications of changes before implementing them.
+- Keep solutions simple and avoid overengineering.
+- Throw clear error messages rather than implementing fallback mechanisms.
+- Leave server testing to the user - never start Python servers in the command line.
+
+## SYSTEM ENVIRONMENT
+- Use appropriate commands for Macbook pro host PC.
+- The server with the model has a single Nvidia RTX 5090 GPU with 32GB VRAM and an RTX 4090 with 24GB VRAM.
+- Always use virtual environments for dependency management.
+
+# CORE PRINCIPLES
+
+1. KISS (Keep It Simple Stupid)
+   - Create simple, functional MVP solutions.
+   - Avoid unnecessary complexity.
+   - Implement functionality once - avoid duplication.
+   - Remove redundant or obsolete code.
+   - Always prefer simpler solutions over complex ones.
+
+2. DOCUMENTATION FIRST
+   - All documentation is in the documentation.md file.
+   - Complete documentation before making any code changes.
+   - Document all changes before implementation.
+
+3. FILE SYSTEM DISCIPLINE
+   - Use proper file editing tools for all changes.
+   - Never paste or modify code in chat messages.
+   - Maintain awareness of file system state at all times.
+   - Keep track of existing files and their contents.
+   - Maintain a clean and organized codebase.
+
+4. PREVENT ASSUMPTIONS
+   - Never jump directly to implementation.
+   - Always verify current state before making changes.
+   - Follow documentation strictly.
+   - Complete all analysis steps without skipping.
+
+5. CODE QUALITY
+   - Build upon existing code rather than creating new code.
+   - Preserve existing patterns before attempting changes.
+   - Check for similar code/functionality in other areas before implementing.
+   - Keep files under 200 lines - refactor larger files.
+   - Consider how changes might affect other parts of the codebase.
+
+# IMPLEMENTATION STANDARDS
+
+## 1. Architecture Rules
+- Maintain clear separation of concerns.
+- Each file should have a single purpose.
+- Implement simple, consistent error handling.
+- Write clean, maintainable code.
+- Focus only on code relevant to the assigned task.
+- Do not modify code unrelated to the current task.
+- Preserve working architecture unless explicitly instructed otherwise.
+- Exhaust all options with existing implementations before introducing new patterns.
+- After introducing new implementations, remove old code to prevent duplication.
+
+## 2. Environment Standards
+- Always use a virtual environment (e.g., `venv`) in the appropriate context (native OS or WSL).
+- Install complex dependencies with specific build requirements (e.g., `flash-attn`) in a WSL2 virtual environment only.
+
+## 3. Change Management
+- Only make changes that are explicitly requested or clearly understood.
+- Ensure all changes directly relate to the requested task.
+
+# DEVELOPMENT WORKFLOW
+
+## 1. Analysis Phase (Mandatory)
+1. Problem Analysis
+   - Identify specific requirements clearly.
+   - Understand all constraints.
+   - Define clear success criteria.
+
+2. Context Evaluation
+   - Determine fit with existing architecture.
+   - Assess impact of changes.
+   - Analyze dependencies thoroughly.
+
+3. Solution Planning
+   - Define specific implementation steps.
+   - Plan testing approach in advance.
+   - Validate plan against requirements.
+
+4. Risk Assessment
+   - Identify potential edge cases.
+   - Consider security implications.
+   - Evaluate performance impact.
+
+5. Quality Verification
+   - Ensure compliance with conventions.
+   - Verify documentation completeness.
+   - Confirm error handling coverage.
+
+## 2. Implementation Phase
+- Begin only after completing the analysis phase.
+- Use appropriate tools for all changes.
+- Keep documentation updated during implementation.
+
+## 3. Validation Phase
+- Test each feature thoroughly.
+- Verify all real-time updates function correctly.
+- Confirm proper error handling in all cases.
+- Review documentation for accuracy.
+
+# DOCUMENTATION REQUIREMENTS
+
+1. Code Documentation
+   - Include clear, explanatory comments.
+   - Provide purpose and usage examples.
+   - Document error handling approaches.
+
+2. System Documentation
+   - Maintain up-to-date design documents.
+   - Provide accurate implementation guides.
+   - Include clear status tracking.
+
+Remember: The documentation.md file is the authority for truth. All implementation must align with its requirements. 
