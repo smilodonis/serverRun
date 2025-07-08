@@ -4,6 +4,7 @@ import pynvml
 import os
 import subprocess
 import socket
+import requests
 
 app = Flask(__name__)
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
@@ -25,6 +26,26 @@ except pynvml.NVMLError:
 def index():
     hostname = socket.gethostname()
     return render_template('index.html', hostname=hostname)
+
+@app.route('/api/ollama-info')
+def ollama_info():
+    try:
+        # Check if the Ollama server is running
+        response = requests.get('http://127.0.0.1:11434/', timeout=1)
+        if response.status_code == 200 and "Ollama is running" in response.text:
+            # If it's running, get the list of loaded models
+            ps_response = requests.get('http://127.0.0.1:11434/api/ps', timeout=2)
+            ps_data = ps_response.json()
+            return jsonify({
+                'running': True,
+                'models': ps_data.get('models', [])
+            })
+    except requests.ConnectionError:
+        return jsonify({'running': False, 'models': []})
+    except Exception as e:
+        return jsonify({'running': False, 'error': str(e)}), 500
+    
+    return jsonify({'running': False, 'models': []})
 
 @app.route('/api/system-info')
 def system_info():

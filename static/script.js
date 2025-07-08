@@ -124,6 +124,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const updateOllamaInfo = async () => {
+        const data = await fetchData('/api/ollama-info');
+        const statusEl = document.getElementById('ollama-status');
+        const modelsContainer = document.getElementById('ollama-models-container');
+        const modelsList = document.getElementById('ollama-models-list');
+
+        if (!data) {
+            statusEl.textContent = 'Error';
+            statusEl.style.color = '#ff4d4d';
+            modelsContainer.style.display = 'none';
+            return;
+        }
+
+        if (data.running) {
+            statusEl.textContent = 'Running';
+            statusEl.style.color = '#2ECC71';
+            modelsContainer.style.display = 'block';
+            modelsList.innerHTML = '';
+            
+            if (data.models && data.models.length > 0) {
+                data.models.forEach(model => {
+                    const li = document.createElement('li');
+                    li.textContent = `${model.name} (Size: ${formatBytes(model.size)})`;
+                    modelsList.appendChild(li);
+                });
+            } else {
+                modelsList.innerHTML = '<li>No models are currently loaded.</li>';
+            }
+
+        } else {
+            statusEl.textContent = 'Not Running';
+            statusEl.style.color = '#ff4d4d';
+            modelsContainer.style.display = 'none';
+        }
+    };
+
     const updateRunningApps = async () => {
         const data = await fetchData('/api/running-apps');
         const appListUl = document.getElementById('app-list');
@@ -163,8 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial data fetch and periodic updates
     updateSystemInfo();
     updateGpuInfo();
+    updateOllamaInfo();
     updateRunningApps();
     setInterval(updateSystemInfo, 3000);
     setInterval(updateGpuInfo, 5000);
+    setInterval(updateOllamaInfo, 10000);
     setInterval(updateRunningApps, 10000);
 }); 
