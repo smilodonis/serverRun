@@ -8,6 +8,7 @@ import requests
 
 app = Flask(__name__)
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
+INVOKEAI_COMMAND = "C:\$Andy\AI\.venv\Scripts\invokeai-web.exe"
 
 # Predefined dictionary of allowed applications to start.
 # The user should configure this dictionary with the applications they want to control.
