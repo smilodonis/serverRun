@@ -132,13 +132,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusEl = document.getElementById('ollama-status');
         const modelsContainer = document.getElementById('ollama-models-container');
         const modelsList = document.getElementById('ollama-models-list');
+        const ollamaToggle = document.getElementById('ollama-toggle');
 
         if (!data) {
             statusEl.textContent = 'Error';
             statusEl.style.color = '#ff4d4d';
             modelsContainer.style.display = 'none';
+            ollamaToggle.disabled = true;
             return;
         }
+
+        ollamaToggle.disabled = false;
+        ollamaToggle.checked = data.running;
 
         if (data.running) {
             statusEl.textContent = 'Running';
@@ -162,6 +167,14 @@ document.addEventListener('DOMContentLoaded', () => {
             modelsContainer.style.display = 'none';
         }
     };
+
+    document.getElementById('ollama-toggle').addEventListener('change', (event) => {
+        const action = event.target.checked ? 'start' : 'stop';
+        postData('/api/ollama/toggle', { action: action }).then(() => {
+            // Re-check status after a short delay to allow the server to respond
+            setTimeout(updateOllamaInfo, 1000);
+        });
+    });
 
     const updateInvokeAIInfo = async () => {
         const data = await fetchData('/api/invokeai-info');

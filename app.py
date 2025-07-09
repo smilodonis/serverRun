@@ -6,6 +6,8 @@ import subprocess
 import socket
 import requests
 
+OLLAMA_PROCESS = None
+
 app = Flask(__name__)
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
 
@@ -82,6 +84,35 @@ def invokeai_info():
         return jsonify({'running': False, 'is_generating': False, 'error': str(e)}), 500
     
     return jsonify({'running': False, 'is_generating': False})
+
+@app.route('/api/ollama/toggle', methods=['POST'])
+def toggle_ollama():
+    global OLLAMA_PROCESS
+    action = request.json.get('action') # 'start' or 'stop'
+
+    if action == 'start':
+        if OLLAMA_PROCESS and OLLAMA_PROCESS.poll() is None:
+            return jsonify({'error': 'Ollama is already running.'}), 400
+        try:
+            # Using Popen to run it in the background
+            OLLAMA_PROCESS = subprocess.Popen(['ollama', 'serve'])
+            return jsonify({'message': 'Ollama server started.'})
+        except Exception as e:
+            return jsonify({'error': f'Failed to start Ollama: {e}'}), 500
+            
+    elif action == 'stop':
+        try:
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                if proc.info['name'] == 'ollama' and 'serve' in proc.info['cmdline']:
+                    p = psutil.Process(proc.info['pid'])
+                    p.terminate()
+                    OLLAMA_PROCESS = None
+                    return jsonify({'message': 'Ollama server stopped.'})
+            return jsonify({'error': 'Ollama process not found.'}), 404
+        except Exception as e:
+            return jsonify({'error': f'Failed to stop Ollama: {e}'}), 500
+            
+    return jsonify({'error': 'Invalid action.'}), 400
 
 @app.route('/api/system-info')
 def system_info():

@@ -40,7 +40,13 @@
 
     <div class="service-monitoring-container">
         <div id="ollama-monitoring">
-            <h2>Ollama Monitoring</h2>
+            <div class="service-header">
+                <h2>Ollama Monitoring</h2>
+                <label class="theme-switch">
+                    <input type="checkbox" id="ollama-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
             <div class="stat-container">
                 <p>Status: <span id="ollama-status">...</span></p>
             </div>
