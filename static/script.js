@@ -182,14 +182,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const generatingEl = document.getElementById('invokeai-generating-status');
         const queueContainer = document.getElementById('invokeai-queue-container');
         const queueProgressEl = document.getElementById('invokeai-queue-progress');
+        const invokeaiToggle = document.getElementById('invokeai-toggle');
 
         if (!data) {
             statusEl.textContent = 'Error';
             statusEl.style.color = '#ff4d4d';
             generatingEl.textContent = 'Unknown';
             queueContainer.style.display = 'none';
+            invokeaiToggle.disabled = true;
             return;
         }
+
+        invokeaiToggle.disabled = false;
+        invokeaiToggle.checked = data.running;
 
         if (data.running) {
             statusEl.textContent = 'Running';
@@ -242,6 +247,14 @@ document.addEventListener('DOMContentLoaded', () => {
             invokeai_batch_total_items = 0;
         }
     };
+
+    document.getElementById('invokeai-toggle').addEventListener('change', (event) => {
+        const action = event.target.checked ? 'start' : 'stop';
+        postData('/api/invokeai/toggle', { action: action }).then(() => {
+            // Re-check status after a short delay to allow the server to respond
+            setTimeout(updateInvokeAIInfo, 1000);
+        });
+    });
 
     const updateRunningApps = async () => {
         const data = await fetchData('/api/running-apps');

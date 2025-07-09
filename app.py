@@ -94,6 +94,17 @@ def is_ollama_running():
             continue
     return False
 
+def is_invokeai_running():
+    """Check if the InvokeAI web process is running."""
+    for proc in psutil.process_iter(['name', 'cmdline']):
+        try:
+            cmdline = proc.info.get('cmdline')
+            if cmdline and any('invokeai-web' in c for c in cmdline):
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return False
+
 @app.route('/api/ollama/toggle', methods=['POST'])
 def toggle_ollama():
     action = request.json.get('action')
@@ -121,6 +132,37 @@ def toggle_ollama():
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
         return jsonify({'error': 'Failed to find and stop the Ollama process.'}), 500
+
+    return jsonify({'error': 'Invalid action.'}), 400
+
+@app.route('/api/invokeai/toggle', methods=['POST'])
+def toggle_invokeai():
+    action = request.json.get('action')
+
+    if action == 'start':
+        if is_invokeai_running():
+            return jsonify({'error': 'InvokeAI is already running.'}), 400
+        try:
+            subprocess.Popen(['invokeai-web'])
+            return jsonify({'message': 'InvokeAI server started.'})
+        except FileNotFoundError:
+            return jsonify({'error': "The 'invokeai-web' command was not found. Is it in your system's PATH?"}), 500
+        except Exception as e:
+            return jsonify({'error': f'Failed to start InvokeAI: {e}'}), 500
+
+    elif action == 'stop':
+        if not is_invokeai_running():
+            return jsonify({'error': 'InvokeAI is not running.'}), 400
+        
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                cmdline = proc.info.get('cmdline')
+                if cmdline and any('invokeai-web' in c for c in cmdline):
+                    psutil.Process(proc.info['pid']).terminate()
+                    return jsonify({'message': 'InvokeAI server stopped.'})
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        return jsonify({'error': 'Failed to find and stop the InvokeAI process.'}), 500
 
     return jsonify({'error': 'Invalid action.'}), 400
 
