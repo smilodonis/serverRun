@@ -16,6 +16,12 @@ ALLOWED_APPS = {
     'notepad': 'notepad.exe' # Using notepad as an example
 }
 
+# Path to the invokeai-web command.
+# If 'invokeai-web' is not in your system's PATH, you may need to provide an absolute path.
+# For example: '/Users/youruser/invokeai/.venv/bin/invokeai-web' on macOS/Linux
+# or 'C:\\Users\\youruser\\invokeai\\.venv\\Scripts\\invokeai-web.exe' on Windows.
+INVOKEAI_COMMAND = 'invokeai-web'
+
 try:
     pynvml.nvmlInit()
     NVML_AVAILABLE = True
@@ -143,10 +149,10 @@ def toggle_invokeai():
         if is_invokeai_running():
             return jsonify({'error': 'InvokeAI is already running.'}), 400
         try:
-            subprocess.Popen(['invokeai-web'])
+            subprocess.Popen([INVOKEAI_COMMAND])
             return jsonify({'message': 'InvokeAI server started.'})
         except FileNotFoundError:
-            return jsonify({'error': "The 'invokeai-web' command was not found. Is it in your system's PATH?"}), 500
+            return jsonify({'error': f"The '{INVOKEAI_COMMAND}' command was not found. Is it in your system's PATH?"}), 500
         except Exception as e:
             return jsonify({'error': f'Failed to start InvokeAI: {e}'}), 500
 
