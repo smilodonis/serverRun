@@ -132,10 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await fetchData('/api/ollama-info');
         const statusEl = document.getElementById('ollama-status');
         const modelsContainer = document.getElementById('ollama-models-container');
-        const modelsList = document.getElementById('ollama-models-list');
         const ollamaToggle = document.getElementById('ollama-toggle');
         const modelSelector = document.getElementById('ollama-model-selector');
         const gpuBadge = document.getElementById('ollama-gpu-badge');
+        const modelBadge = document.getElementById('ollama-model-badge');
 
         if (!data) {
             statusEl.textContent = 'Error';
@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ollamaToggle.disabled = true;
             modelSelector.disabled = true;
             gpuBadge.style.display = 'none';
+            modelBadge.style.display = 'none';
             return;
         }
 
@@ -151,16 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ollamaToggle.checked = data.running;
 
         if (data.running) {
-            let statusText = 'Running';
-            // This part is now handled by the badge
-            // if (data.gpu_index !== undefined && data.gpu_index !== -1) {
-            //     statusText += ` (GPU ${data.gpu_index})`;
-            // }
-            statusEl.textContent = statusText;
+            statusEl.textContent = 'Running';
             statusEl.style.color = '#2ECC71';
             modelsContainer.style.display = 'block';
             modelSelector.disabled = false;
-            modelsList.innerHTML = '';
 
             if (data.gpu_name) {
                 gpuBadge.textContent = data.gpu_name;
@@ -170,15 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (data.models && data.models.length > 0) {
-                currently_loaded_ollama_model = data.models[0].name; // Assuming one model loaded at a time
-                data.models.forEach(model => {
-                    const li = document.createElement('li');
-                    li.textContent = `${model.name} (Size: ${formatBytes(model.size)})`;
-                    modelsList.appendChild(li);
-                });
+                currently_loaded_ollama_model = data.models[0].name;
+                // Truncate the model name to remove the tag for cleaner display
+                modelBadge.textContent = currently_loaded_ollama_model.split(':')[0];
+                modelBadge.style.display = 'inline-block';
             } else {
                 currently_loaded_ollama_model = '';
-                modelsList.innerHTML = '<li>No models are currently loaded.</li>';
+                modelBadge.style.display = 'none';
             }
 
         } else {
@@ -187,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modelsContainer.style.display = 'none';
             modelSelector.disabled = true;
             gpuBadge.style.display = 'none';
+            modelBadge.style.display = 'none';
         }
     };
 
