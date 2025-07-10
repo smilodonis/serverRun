@@ -81,6 +81,10 @@ h1, h2 {
     display: none; /* Hidden by default */
 }
 
+.model-badge {
+    background-color: #3498db; /* A different color for the model */
+}
+
 select {
     width: 100%;
     padding: 8px;
