@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const modelsList = document.getElementById('ollama-models-list');
         const ollamaToggle = document.getElementById('ollama-toggle');
         const modelSelector = document.getElementById('ollama-model-selector');
+        const gpuBadge = document.getElementById('ollama-gpu-badge');
 
         if (!data) {
             statusEl.textContent = 'Error';
@@ -142,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modelsContainer.style.display = 'none';
             ollamaToggle.disabled = true;
             modelSelector.disabled = true;
+            gpuBadge.style.display = 'none';
             return;
         }
 
@@ -150,14 +152,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (data.running) {
             let statusText = 'Running';
-            if (data.gpu_index !== undefined && data.gpu_index !== -1) {
-                statusText += ` (GPU ${data.gpu_index})`;
-            }
+            // This part is now handled by the badge
+            // if (data.gpu_index !== undefined && data.gpu_index !== -1) {
+            //     statusText += ` (GPU ${data.gpu_index})`;
+            // }
             statusEl.textContent = statusText;
             statusEl.style.color = '#2ECC71';
             modelsContainer.style.display = 'block';
             modelSelector.disabled = false;
             modelsList.innerHTML = '';
+
+            if (data.gpu_name) {
+                gpuBadge.textContent = data.gpu_name;
+                gpuBadge.style.display = 'inline-block';
+            } else {
+                gpuBadge.style.display = 'none';
+            }
             
             if (data.models && data.models.length > 0) {
                 currently_loaded_ollama_model = data.models[0].name; // Assuming one model loaded at a time
@@ -176,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusEl.style.color = '#ff4d4d';
             modelsContainer.style.display = 'none';
             modelSelector.disabled = true;
+            gpuBadge.style.display = 'none';
         }
     };
 

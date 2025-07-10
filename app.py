@@ -61,6 +61,7 @@ def ollama_info():
             ps_data = ps_response.json()
 
             gpu_index = -1
+            gpu_name = ""
             ollama_proc = get_ollama_process()
             if ollama_proc and NVML_AVAILABLE:
                 ollama_pid = ollama_proc.pid
@@ -73,6 +74,7 @@ def ollama_info():
                             for p in compute_procs:
                                 if p.pid == ollama_pid:
                                     gpu_index = i
+                                    gpu_name = pynvml.nvmlDeviceGetName(handle)
                                     break
                         except pynvml.NVMLError:
                             continue 
@@ -84,7 +86,8 @@ def ollama_info():
             return jsonify({
                 'running': True,
                 'models': ps_data.get('models', []),
-                'gpu_index': gpu_index
+                'gpu_index': gpu_index,
+                'gpu_name': gpu_name
             })
     except requests.ConnectionError:
         return jsonify({'running': False, 'models': []})
