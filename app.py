@@ -64,7 +64,9 @@ def ollama_info():
             gpu_name = ""
             ollama_proc = get_ollama_process()
             if ollama_proc and NVML_AVAILABLE:
-                ollama_pid = ollama_proc.pid
+                # Get the PID of the main process and all its children, recursively.
+                pids_to_check = [ollama_proc.pid] + [p.pid for p in ollama_proc.children(recursive=True)]
+                
                 try:
                     device_count = pynvml.nvmlDeviceGetCount()
                     for i in range(device_count):
@@ -72,7 +74,7 @@ def ollama_info():
                         try:
                             compute_procs = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
                             for p in compute_procs:
-                                if p.pid == ollama_pid:
+                                if p.pid in pids_to_check:
                                     gpu_index = i
                                     gpu_name = pynvml.nvmlDeviceGetName(handle)
                                     break
