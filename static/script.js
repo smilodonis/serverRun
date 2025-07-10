@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let invokeai_batch_start_completed_count = -1;
     let invokeai_batch_total_items = 0;
+    let currently_loaded_ollama_model = '';
 
     console.log('Control panel script loaded.');
 
@@ -133,12 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const modelsContainer = document.getElementById('ollama-models-container');
         const modelsList = document.getElementById('ollama-models-list');
         const ollamaToggle = document.getElementById('ollama-toggle');
+        const modelSelector = document.getElementById('ollama-model-selector');
 
         if (!data) {
             statusEl.textContent = 'Error';
             statusEl.style.color = '#ff4d4d';
             modelsContainer.style.display = 'none';
             ollamaToggle.disabled = true;
+            modelSelector.disabled = true;
             return;
         }
 
@@ -153,15 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
             statusEl.textContent = statusText;
             statusEl.style.color = '#2ECC71';
             modelsContainer.style.display = 'block';
+            modelSelector.disabled = false;
             modelsList.innerHTML = '';
             
             if (data.models && data.models.length > 0) {
+                currently_loaded_ollama_model = data.models[0].name; // Assuming one model loaded at a time
                 data.models.forEach(model => {
                     const li = document.createElement('li');
                     li.textContent = `${model.name} (Size: ${formatBytes(model.size)})`;
                     modelsList.appendChild(li);
                 });
             } else {
+                currently_loaded_ollama_model = '';
                 modelsList.innerHTML = '<li>No models are currently loaded.</li>';
             }
 
@@ -169,6 +175,21 @@ document.addEventListener('DOMContentLoaded', () => {
             statusEl.textContent = 'Not Running';
             statusEl.style.color = '#ff4d4d';
             modelsContainer.style.display = 'none';
+            modelSelector.disabled = true;
+        }
+    };
+
+    const populateOllamaModelSelector = async () => {
+        const modelSelector = document.getElementById('ollama-model-selector');
+        const models = await fetchData('/api/ollama/models');
+        modelSelector.innerHTML = '<option value="">-- Select a model --</option>'; // Placeholder
+        if (models) {
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.name;
+                option.textContent = model.name;
+                modelSelector.appendChild(option);
+            });
         }
     };
 
@@ -176,8 +197,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const action = event.target.checked ? 'start' : 'stop';
         postData('/api/ollama/toggle', { action: action }).then(() => {
             // Re-check status after a short delay to allow the server to respond
-            setTimeout(updateOllamaInfo, 1000);
+            setTimeout(() => {
+                updateOllamaInfo();
+                if(action === 'start') {
+                    populateOllamaModelSelector();
+                }
+            }, 1000);
         });
+    });
+
+    document.getElementById('ollama-model-selector').addEventListener('change', (event) => {
+        const selectedModel = event.target.value;
+        if (!selectedModel) return;
+
+        const changeModel = async () => {
+            // 1. Unload the old model if one is loaded
+            if (currently_loaded_ollama_model) {
+                await postData('/api/ollama/unload', { model: currently_loaded_ollama_model });
+            }
+            // 2. Load the new model
+            await postData('/api/ollama/load', { model: selectedModel });
+            // 3. Refresh the UI
+            setTimeout(updateOllamaInfo, 1000); // Give it a second to update
+        };
+        
+        changeModel();
     });
 
     const updateInvokeAIInfo = async () => {
@@ -299,7 +343,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial data fetch and periodic updates
     updateSystemInfo();
     updateGpuInfo();
-    updateOllamaInfo();
+    updateOllamaInfo().then(() => {
+        if (document.getElementById('ollama-toggle').checked) {
+            populateOllamaModelSelector();
+        }
+    });
     updateInvokeAIInfo();
     updateRunningApps();
     setInterval(updateSystemInfo, 3000);

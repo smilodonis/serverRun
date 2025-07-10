@@ -51,6 +51,12 @@
                 <p>Status: <span id="ollama-status">...</span></p>
             </div>
             <div id="ollama-models-container" style="display: none;">
+                <div class="stat-container">
+                    <label for="ollama-model-selector">Change Model:</label>
+                    <select id="ollama-model-selector" disabled>
+                        <option>Loading...</option>
+                    </select>
+                </div>
                 <h3>Loaded Models</h3>
                 <ul id="ollama-models-list">
                     <!-- Loaded models will be listed here -->

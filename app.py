@@ -93,6 +93,46 @@ def ollama_info():
     
     return jsonify({'running': False, 'models': []})
 
+@app.route('/api/ollama/models', methods=['GET'])
+def get_ollama_models():
+    """Get a list of all locally available Ollama models."""
+    try:
+        response = requests.get('http://127.0.0.1:11434/api/tags', timeout=2)
+        response.raise_for_status()
+        return jsonify(response.json().get('models', []))
+    except requests.RequestException:
+        return jsonify([])
+
+@app.route('/api/ollama/load', methods=['POST'])
+def load_ollama_model():
+    """Load a specific model into Ollama."""
+    model_name = request.json.get('model')
+    if not model_name:
+        return jsonify({'error': 'Model name not provided.'}), 400
+    try:
+        # The 'generate' endpoint with a dummy prompt is the way to force a model to load.
+        requests.post('http://127.0.0.1:11434/api/generate', json={'model': model_name, 'prompt': ' '}, stream=False, timeout=1)
+    except requests.Timeout:
+        # A timeout is expected and normal, as we are not waiting for a response.
+        pass
+    except requests.RequestException as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify({'message': f'Load command for model {model_name} sent.'})
+
+@app.route('/api/ollama/unload', methods=['POST'])
+def unload_ollama_model():
+    """Unload a specific model from Ollama."""
+    model_name = request.json.get('model')
+    if not model_name:
+        return jsonify({'error': 'Model name not provided.'}), 400
+    try:
+        # The 'delete' endpoint is used to unload a model by setting keep_alive=0
+        requests.post('http://127.0.0.1:11434/api/delete', json={'name': model_name, 'keep_alive': 0})
+    except requests.RequestException as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify({'message': f'Unload command for model {model_name} sent.'})
+
+
 @app.route('/api/invokeai-info')
 def invokeai_info():
     invokeai_url = 'http://127.0.0.1:9090'
