@@ -8,7 +8,6 @@ import requests
 
 app = Flask(__name__)
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
-INVOKEAI_COMMAND = "C:\$Andy\AI\.venv\Scripts\invokeai-web.exe"
 
 # Predefined dictionary of allowed applications to start.
 # The user should configure this dictionary with the applications they want to control.
@@ -16,12 +15,6 @@ INVOKEAI_COMMAND = "C:\$Andy\AI\.venv\Scripts\invokeai-web.exe"
 ALLOWED_APPS = {
     'notepad': 'notepad.exe' # Using notepad as an example
 }
-
-# Path to the invokeai-web command.
-# If 'invokeai-web' is not in your system's PATH, you may need to provide an absolute path.
-# For example: '/Users/youruser/invokeai/.venv/bin/invokeai-web' on macOS/Linux
-# or 'C:\\Users\\youruser\\invokeai\\.venv\\Scripts\\invokeai-web.exe' on Windows.
-INVOKEAI_COMMAND = 'invokeai-web'
 
 try:
     pynvml.nvmlInit()
@@ -120,10 +113,11 @@ def toggle_ollama():
         if is_ollama_running():
             return jsonify({'error': 'Ollama is already running.'}), 400
         try:
-            subprocess.Popen(['ollama', 'serve'])
-            return jsonify({'message': 'Ollama server started.'})
+            script_path = os.path.join(SCRIPTS_DIR, 'start_ollama.bat')
+            subprocess.Popen(script_path, cwd=SCRIPTS_DIR)
+            return jsonify({'message': 'Ollama server start command issued.'})
         except FileNotFoundError:
-            return jsonify({'error': "The 'ollama' command was not found. Is it in your system's PATH?"}), 500
+            return jsonify({'error': "Could not find 'start_ollama.bat'.'"}), 500
         except Exception as e:
             return jsonify({'error': f'Failed to start Ollama: {e}'}), 500
 
@@ -150,10 +144,11 @@ def toggle_invokeai():
         if is_invokeai_running():
             return jsonify({'error': 'InvokeAI is already running.'}), 400
         try:
-            subprocess.Popen([INVOKEAI_COMMAND])
-            return jsonify({'message': 'InvokeAI server started.'})
+            script_path = os.path.join(SCRIPTS_DIR, 'start_invokeai.bat')
+            subprocess.Popen(script_path, cwd=SCRIPTS_DIR)
+            return jsonify({'message': 'InvokeAI server start command issued.'})
         except FileNotFoundError:
-            return jsonify({'error': f"The '{INVOKEAI_COMMAND}' command was not found. Is it in your system's PATH?"}), 500
+            return jsonify({'error': "Could not find 'start_invokeai.bat'.'"}), 500
         except Exception as e:
             return jsonify({'error': f'Failed to start InvokeAI: {e}'}), 500
 
