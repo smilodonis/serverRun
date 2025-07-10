@@ -27,18 +27,64 @@ def index():
     hostname = socket.gethostname()
     return render_template('index.html', hostname=hostname)
 
+def get_ollama_process():
+    """Check if the 'ollama serve' process is running and return the process object."""
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if 'ollama' in proc.info['name'].lower() and proc.info['cmdline'] and 'serve' in proc.info['cmdline']:
+                return psutil.Process(proc.info['pid'])
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return None
+
+def is_ollama_running():
+    """Check if the 'ollama serve' process is running on the system."""
+    return get_ollama_process() is not None
+
+def is_invokeai_running():
+    """Check if the InvokeAI web process is running."""
+    for proc in psutil.process_iter(['name', 'cmdline']):
+        try:
+            cmdline = proc.info.get('cmdline')
+            if cmdline and any('invokeai-web' in c for c in cmdline):
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return False
+
 @app.route('/api/ollama-info')
 def ollama_info():
     try:
-        # Check if the Ollama server is running
         response = requests.get('http://127.0.0.1:11434/', timeout=1)
         if response.status_code == 200 and "Ollama is running" in response.text:
-            # If it's running, get the list of loaded models
             ps_response = requests.get('http://127.0.0.1:11434/api/ps', timeout=2)
             ps_data = ps_response.json()
+
+            gpu_index = -1
+            ollama_proc = get_ollama_process()
+            if ollama_proc and NVML_AVAILABLE:
+                ollama_pid = ollama_proc.pid
+                try:
+                    device_count = pynvml.nvmlDeviceGetCount()
+                    for i in range(device_count):
+                        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                        try:
+                            compute_procs = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
+                            for p in compute_procs:
+                                if p.pid == ollama_pid:
+                                    gpu_index = i
+                                    break
+                        except pynvml.NVMLError:
+                            continue 
+                        if gpu_index != -1:
+                            break
+                except pynvml.NVMLError:
+                    pass 
+
             return jsonify({
                 'running': True,
-                'models': ps_data.get('models', [])
+                'models': ps_data.get('models', []),
+                'gpu_index': gpu_index
             })
     except requests.ConnectionError:
         return jsonify({'running': False, 'models': []})
@@ -82,28 +128,6 @@ def invokeai_info():
         return jsonify({'running': False, 'is_generating': False, 'error': str(e)}), 500
     
     return jsonify({'running': False, 'is_generating': False})
-
-def is_ollama_running():
-    """Check if the 'ollama serve' process is running on the system."""
-    for proc in psutil.process_iter(['name', 'cmdline']):
-        try:
-            # Check for name and that cmdline is not empty
-            if 'ollama' in proc.info['name'].lower() and proc.info['cmdline'] and 'serve' in proc.info['cmdline']:
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
-    return False
-
-def is_invokeai_running():
-    """Check if the InvokeAI web process is running."""
-    for proc in psutil.process_iter(['name', 'cmdline']):
-        try:
-            cmdline = proc.info.get('cmdline')
-            if cmdline and any('invokeai-web' in c for c in cmdline):
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
-    return False
 
 @app.route('/api/ollama/toggle', methods=['POST'])
 def toggle_ollama():

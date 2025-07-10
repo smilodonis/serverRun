@@ -146,7 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ollamaToggle.checked = data.running;
 
         if (data.running) {
-            statusEl.textContent = 'Running';
+            let statusText = 'Running';
+            if (data.gpu_index !== undefined && data.gpu_index !== -1) {
+                statusText += ` (GPU ${data.gpu_index})`;
+            }
+            statusEl.textContent = statusText;
             statusEl.style.color = '#2ECC71';
             modelsContainer.style.display = 'block';
             modelsList.innerHTML = '';
