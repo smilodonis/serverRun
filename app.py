@@ -111,13 +111,20 @@ def load_ollama_model():
         return jsonify({'error': 'Model name not provided.'}), 400
     try:
         # The 'generate' endpoint with a dummy prompt is the way to force a model to load.
-        requests.post('http://127.0.0.1:11434/api/generate', json={'model': model_name, 'prompt': ' '}, stream=False, timeout=1)
+        # We set a long timeout to allow time for the model to be loaded from disk.
+        payload = {
+            'model': model_name,
+            'prompt': ' ',
+            'stream': False, # We want a single response when it's done.
+            'keep_alive': '5m' # Keep the model loaded for 5 minutes.
+        }
+        # This request will now block until the model is fully loaded.
+        requests.post('http://127.0.0.1:11434/api/generate', json=payload, timeout=300)
     except requests.Timeout:
-        # A timeout is expected and normal, as we are not waiting for a response.
-        pass
+        return jsonify({'error': 'Timed out waiting for Ollama to load the model (5 minutes).'}), 500
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
-    return jsonify({'message': f'Load command for model {model_name} sent.'})
+    return jsonify({'message': f'Model {model_name} loaded successfully.'})
 
 @app.route('/api/ollama/unload', methods=['POST'])
 def unload_ollama_model():
@@ -126,8 +133,12 @@ def unload_ollama_model():
     if not model_name:
         return jsonify({'error': 'Model name not provided.'}), 400
     try:
-        # The 'delete' endpoint is used to unload a model by setting keep_alive=0
-        requests.post('http://127.0.0.1:11434/api/delete', json={'name': model_name, 'keep_alive': 0})
+        # To unload a model, we send a request with keep_alive=0.
+        payload = {
+            'model': model_name,
+            'keep_alive': 0,
+        }
+        requests.post('http://127.0.0.1:11434/api/generate', json=payload, timeout=30)
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
     return jsonify({'message': f'Unload command for model {model_name} sent.'})
