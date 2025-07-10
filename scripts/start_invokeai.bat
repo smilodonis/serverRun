@@ -9,7 +9,7 @@ REM    It's usually in a location like: C:\Users\YourUser\invokeai\.venv\Scripts
 REM
 REM 2. Replace the placeholder path below with your actual path.
 
-set "INVOKEAI_VENV_ACTIVATE=C:\path\to\your\invokeai\.venv\Scripts\activate.bat"
+set "INVOKEAI_VENV_ACTIVATE=C:\$Andy\AI\.venv\Scripts\activate.bat"
 
 REM --- Do not edit below this line ---
 
